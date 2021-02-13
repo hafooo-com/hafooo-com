@@ -1,0 +1,36 @@
+
+.nav-flags {height: 16px; box-shadow: 0px 0px 6px 0px #666666;}
+
+@keyframes wrench {
+  0%{transform:rotate(-12deg)}
+  8%{transform:rotate(12deg)}
+  10%{transform:rotate(24deg)}
+  18%{transform:rotate(-24deg)}
+  20%{transform:rotate(-24deg)}
+  28%{transform:rotate(24deg)}
+  30%{transform:rotate(24deg)}
+  38%{transform:rotate(-24deg)}
+  40%{transform:rotate(-24deg)}
+  48%{transform:rotate(24deg)}
+  50%{transform:rotate(24deg)}
+  58%{transform:rotate(-24deg)}
+  60%{transform:rotate(-24deg)}
+  68%{transform:rotate(24deg)}
+  75%,100%{transform:rotate(0deg)}
+}
+/* SHAKE */
+.faa-shake.animated,
+.faa-shake.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-shake {
+  animation: wrench 2.5s ease infinite;
+}
+.faa-shake.animated.faa-fast,
+.faa-shake.animated-hover.faa-fast:hover,
+.faa-parent.animated-hover:hover > .faa-shake.faa-fast {
+  animation: wrench 1.2s ease infinite;
+}
+.faa-shake.animated.faa-slow,
+.faa-shake.animated-hover.faa-slow:hover,
+.faa-parent.animated-hover:hover > .faa-shake.faa-slow {
+  animation: wrench 3.7s ease infinite;
+}

@@ -1,0 +1,24 @@
+#megamenu {
+	button {float: right; margin: 0px 0px 0px auto;}
+}
+.megamenu {
+	position: static;
+	.dropdown-menu {
+		background: none;
+		border: none;
+		width: 100%
+	}
+}
+
+.megamenu
+
+code {
+	color: #745eb1;
+	background: #fff;
+	padding: 0.1rem 0.2rem;
+	border-radius: 0.2rem
+}
+
+.text-uppercase {
+	letter-spacing: 0.08em
+}

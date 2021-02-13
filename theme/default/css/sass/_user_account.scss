@@ -1,0 +1,22 @@
+
+.user-account-form label {font-weight: bold}
+
+#user-account-menu {
+  margin: 0px auto 30px;
+  button {float: right; margin: 0px 0px 0px auto;}
+}
+
+#user-account-collapse {
+  ul {
+    float: none; margin: auto;
+    a {
+      display: block; border: solid 1px #ccc; padding: 5px 8px; margin: 8px 1px;
+      color: #333; background-color: #eee; font-weight: bold; text-decoration: none; text-align: center;
+      i {display: block; margin: auto}
+      &:hover {color: #000; background-color: #ddd;}
+    }
+  }
+}
+
+
+
