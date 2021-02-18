@@ -138,11 +138,6 @@ class Products_model extends CI_Model
     }
 
 
-    public function getProductImages($pageID){
-
-    }
-
-
     public function getProductsByVendor($vendorID){
         $qs = "SELECT p.pageID, p.lastUpdate, p.state, p.allParentPageIDs, pr.productID, pr.stockAmount, pr.productType, p.defaultLanguage, pr.mainImage, prt.productDescription,
                 (SELECT pageName FROM page_translation WHERE pageID = p.pageID AND lang = p.defaultLanguage) AS pageName
@@ -214,6 +209,77 @@ class Products_model extends CI_Model
             }
 
             rmdir($pageMediaPath);
+        }
+    }
+
+
+    public function getProductImages($pageID){
+        $images = $this->db->query("SELECT * FROM product_images WHERE pageID = '". $pageID ."' ORDER BY sort")->result_array();
+        return $images;
+    }
+
+
+    public function createProductImage($imgPath, $smallImgPath, $thumbnailPath, $pageID){
+
+        if(!is_dir($imgPath)){mkdir($imgPath, 0705);}
+        if(!is_dir($smallImgPath)){mkdir($smallImgPath, 0705);}
+        if(!is_dir($thumbnailPath)){mkdir($thumbnailPath, 0705);}
+
+        if (!empty($_FILES)) {
+            $this->load->library('image_lib');
+            $tempFile = $_FILES['upload_product_images_input']['tmp_name'];
+            $imgPathInfo = pathinfo($_FILES['upload_product_images_input']['name']);
+            $imgName = $this->checkImageName($imgPathInfo, $imgPath);
+            $targetImage     = $imgPath . $imgName;
+            $targetSmall     = $smallImgPath . $imgName;
+            $targetThumbnail = $thumbnailPath . $imgName;
+            move_uploaded_file($tempFile, $targetImage);
+            copy($targetImage, $targetSmall);
+            copy($targetImage, $targetThumbnail);
+            $this->resizeThumbnail($targetImage, 1280);
+            $this->resizeThumbnail($targetSmall, 360);
+            $this->resizeThumbnail($targetThumbnail, 120);
+            $data = array(
+                'pageID' => $pageID,
+                'imgName' => $imgName,
+            );
+            $this->db->insert('product_images', $data);
+            $id = $this->db->insert_id();
+            $returnArray = array(
+                'pageID' => $pageID,
+                'productMediaID' => $id,
+                'imgName' => $imgName,
+                'imagesPath' => '/' . PRODUCTS_IMAGES_PATH . $pageID . '/thumbnail/',
+            );
+            return json_encode($returnArray);
+        }
+        else{
+            return 'false';
+        }
+    }
+
+    public function checkImageName($imgPathInfo, $imgPath){
+        $imgName = convertToUrlFriendly($imgPathInfo['filename'], true) . '.' . $imgPathInfo['extension'];
+        $i = 2;
+        while(file_exists($imgPath . $imgName)){
+            $imgName = convertToUrlFriendly($imgPathInfo['filename'], true) . '-' . $i . '.' . $imgPathInfo['extension'];
+            $i++;
+        }
+        return $imgName;
+    }
+
+    public function resizeThumbnail($path, $size){
+        $config['image_library'] = 'gd2';
+        $config['source_image'] = $path;
+        $config['create_thumb'] = TRUE;
+        $config['maintain_ratio'] = TRUE;
+        $config['width']         = $size;
+        $config['height']       = $size;
+        $config['thumb_marker'] = '';
+        $this->image_lib->clear();
+        $this->image_lib->initialize($config);
+        if (!$this->image_lib->resize()) {
+            echo '<p>' . $this->image_lib->display_errors() . '</p>';
         }
     }
 

@@ -3,7 +3,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 
 error_reporting(E_ALL);
-ini_set('display_errors', 'On');
+ini_set('display_errors', 1);
 
 class Vendor_controller extends CI_Controller
 {
@@ -24,6 +24,7 @@ class Vendor_controller extends CI_Controller
         $this->lang->load(array('auth_lang', 'ion_auth_lang'), $this->lang->line('CI_LANGUAGE_NAME'));
         $this->data['allCurrencies'] = $this->db->query("SELECT * FROM currency WHERE allowed = 'Y' ORDER BY sort")->result_array();
 
+//        dmp( $this->ion_auth->logged_in() ); die();
         if($this->input->post('userName') && $this->input->post('password')){
             $remember = $this->input->post('remember') ? true : false;
             $this->ion_auth->login($this->input->post('userName'), $this->input->post('password'), $remember);
@@ -32,7 +33,7 @@ class Vendor_controller extends CI_Controller
             }
         }
         if($this->ion_auth->logged_in() && !$this->ion_auth->in_group(3)){ // if vendor is logged in
-//            $this->ion_auth->logout();
+            $this->ion_auth->logout();
         }
         if($this->ion_auth->logged_in()){
 //            $this->user = $this->ion_auth->user()->row();

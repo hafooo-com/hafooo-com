@@ -1,9 +1,9 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-//require 'Vendor_controller.php';
 require APPPATH . 'controllers/Vendor_controller.php';
+
 error_reporting(E_ALL);
-ini_set('display_errors', 'On');
+ini_set('display_errors', 1);
 
 class Products extends Vendor_controller
 {
@@ -40,6 +40,46 @@ class Products extends Vendor_controller
         $this->load->view('vendor_admin/_header', $this->data);
         $this->load->view('vendor_admin/products/products_list', $this->data);
         $this->load->view('vendor_admin/_footer', $this->data);
+    }
+
+
+    public function product_edit(){
+        $pageID = $this->uri->segment(4);
+        $this->setDictionary('vendor/admin/product_edit');
+        $this->data['css'] = array(
+            '/assets/adminlte/plugins/ekko-lightbox/ekko-lightbox.css',
+            '/assets/adminlte/plugins/select2/css/select2.min.css',
+            '/assets/adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css',
+            '/assets/adminlte/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css',
+            '/assets/adminlte/plugins/summernote/summernote-bs4.css',
+            '/assets/adminlte/plugins/toastr/toastr.min.css',
+        );
+        $this->data['js'] = array(
+            '/assets/adminlte/plugins/ekko-lightbox/ekko-lightbox.min.js',
+            '/assets/adminlte/plugins/select2/js/select2.full.min.js',
+            '/assets/adminlte/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js',
+            '/assets/adminlte/plugins/summernote/summernote-bs4.min.js',
+            '/assets/adminlte/plugins/toastr/toastr.min.js',
+            '/assets/adminlte/plugins/bs-custom-file-input/bs-custom-file-input.min.js',
+            '/assets/psfpro-bootstrap-html5sortable-e43c2ad/jquery.sortable.min.js',
+            '/js/vendor_admin/add_product_form.min.js',
+            '/js/vendor_admin/price_calc.min.js',
+            '/js/vendor_admin/product_edit.min.js',
+        );
+//            '/assets/dropzone-5.7.0/dropzone.css',
+//            '/assets/dropzone-5.7.0/dropzone.min.js',
+
+//
+        $this->data['pageTitle'] = 'VENDOR_ADMIN_PRODUCT_EDIT_PAGE_TITLE';
+        $this->data['productCategoriesTree'] = $this->Products_model->getProductCategoriesTree();
+        $this->data['productData'] = $this->Products_model->getProductData($pageID);
+        $this->data['productImages'] = $this->Products_model->getProductImages($pageID);
+//        dmp($this->data);
+        $this->load->view('vendor_admin/_header', $this->data);
+        $this->load->view('vendor_admin/products/product_edit', $this->data);
+        $this->load->view('vendor_admin/_footer', $this->data);
+//        dmp($this->data);
+//        die;
     }
 
 
@@ -193,56 +233,33 @@ class Products extends Vendor_controller
         redirect($url);
     }
 
-
-    public function product_edit(){
-        $pageID = $this->uri->segment(4);
-        $this->setDictionary('vendor/admin/product_edit');
-        $this->data['css'] = array(
-            '/assets/dropzone-5.7.0/dropzone.css',
-            '/assets/adminlte/plugins/ekko-lightbox/ekko-lightbox.css',
-            '/assets/adminlte/plugins/select2/css/select2.min.css',
-            '/assets/adminlte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css',
-            '/assets/adminlte/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css',
-            '/assets/adminlte/plugins/summernote/summernote-bs4.css',
-        );
-        $this->data['js'] = array(
-            '/assets/adminlte/plugins/ekko-lightbox/ekko-lightbox.min.js',
-            '/assets/adminlte/plugins/select2/js/select2.full.min.js',
-            '/assets/adminlte/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js',
-            '/assets/dropzone-5.7.0/dropzone.min.js',
-            '/assets/adminlte/plugins/summernote/summernote-bs4.min.js',
-            '/js/vendor_admin/add_product_form.min.js',
-            '/js/vendor_admin/price_calc.min.js',
-            '/js/vendor_admin/product_edit.min.js',
-        );
-
-        $this->data['pageTitle'] = 'VENDOR_ADMIN_PRODUCT_EDIT_PAGE_TITLE';
-        $this->data['productCategoriesTree'] = $this->Products_model->getProductCategoriesTree();
-        $this->data['productData'] = $this->Products_model->getProductData($pageID);
-        $this->data['productImages'] = $this->Products_model->getProductImages($pageID);
-
-        $this->load->view('vendor_admin/_header', $this->data);
-        $this->load->view('vendor_admin/products/product_edit', $this->data);
-        $this->load->view('vendor_admin/_footer', $this->data);
-//        dmp($this->data);
-//        die;
+    public function upload_image(){
+        $pageID        = $this->input->post('pageID');
+        $imgPath       = FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/';
+        $smallImgPath  = FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/small/';
+        $thumbnailPath = FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/thumbnail/';
+        $image = $this->Products_model->createProductImage($imgPath, $smallImgPath, $thumbnailPath, $pageID);
+//        dmp($image);
+        redirect('/vendor_admin/products/product_edit/' . $pageID . '?');
     }
 
+    public function ajax_delete_product_image(){
+        $pageID = $this->input->post('pageID');
+        $imgName = $this->input->post('imgName');
+        if(file_exists(FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/' . $imgName)) unlink ( FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/' . $imgName);
+        if(file_exists(FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/small/' . $imgName)) unlink ( FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/small/' . $imgName);
+        if(file_exists(FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/thumbnail/' . $imgName)) unlink ( FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/thumbnail/' . $imgName);
+        $this->db->where( 'productMediaID', $this->input->post('productMediaID') );
+        $this->db->delete('product_images');
+    }
 
-
-    public function ajax_upload_image(){
-        $imgPath = PRODUCTS_IMAGES_PATH . $this->input->post('pageID') . '/';
-        $storeFolder = FCPATH . $imgPath;
-        if(!is_dir($storeFolder)){
-            mkdir($storeFolder, 0705);
-            mkdir($storeFolder . 'thumbnails', 0705);
-        }
-        dmp($storeFolder);
-        if (!empty($_FILES)) {
-            $tempFile = $_FILES['upload_product_images_input']['tmp_name'];
-            $targetFile =  $storeFolder . $_FILES['upload_product_images_input']['name'];
-            move_uploaded_file($tempFile,$targetFile);
-
+    public function ajax_sort_product_images(){
+        $data = $this->input->post('data');
+        foreach($data as $sort => $productMediaID){
+            $this->db->where( 'productMediaID', $productMediaID );
+            $this->db->set( 'sort', $sort );
+            $this->db->update( 'product_images' );
+//            print_r("\n" . $this->db->last_query());
         }
     }
 

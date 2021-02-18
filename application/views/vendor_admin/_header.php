@@ -22,10 +22,14 @@ if($notice){
     <link rel="stylesheet" href="/assets/adminlte/plugins/pace-progress/themes/black/pace-theme-flat-top.css">
     <!-- adminlte-->
     <link rel="stylesheet" href="/assets/adminlte/dist/css/adminlte.min.css">
-    <!-- Google Font: Source Sans Pro -->
+
+    <link rel="stylesheet" href="/assets/adminlte/plugins/toastr/toastr.min.css">
+
     <?php if(isset($css)): foreach($css as $sheet): ?>
     <link rel="stylesheet" href="<?= $sheet.kc(); ?>">
     <?php endforeach; endif; ?>
+
+    <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="/css/admin/stylesheet.css">
 
