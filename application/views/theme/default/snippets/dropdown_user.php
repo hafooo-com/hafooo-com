@@ -1,5 +1,7 @@
 <?php
 $user = $this->ion_auth->user()->row();
+dmp( $this->ion_auth->logged_in() );
+dmp($user);
 $displayName = empty($user->first_name) ? $this->lang->line('TOPBAR_DROPDOWN_USER_ACCOUNT_TITLE') : $user->first_name;
 ?>
 

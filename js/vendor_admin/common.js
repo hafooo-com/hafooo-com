@@ -1,4 +1,9 @@
-
+function deleteTableRow(id){
+    console.log(id);
+}
+function urldecode(url) {
+    return decodeURIComponent(url.replace(/\+/g, ' '));
+}
 
 var getUrlParameter = function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1),
@@ -16,38 +21,45 @@ var getUrlParameter = function getUrlParameter(sParam) {
     return false;
 };
 
-function deleteTableRow(id){
-    console.log(id);
-}
-
+//  TOASTER ALERT
 $(function() {
     toastr.options = {
-        "closeButton": false,
+        "closeButton": true,
         "debug": false,
         "newestOnTop": false,
-        "progressBar": false,
+        "progressBar": true,
         "positionClass": "toast-top-full-width",
         "preventDuplicates": false,
         "onclick": null,
         "showDuration": "300",
-        "hideDuration": "100000",
-        "timeOut": "500000",
-        "extendedTimeOut": "100000",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000000",
         "showEasing": "swing",
         "hideEasing": "linear",
         "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
+        "hideMethod": "fadeOut",
     }
     var toasterType = getUrlParameter('toast-type');
     var toasterMessage = getUrlParameter('toast-message');
+    toasterMessage = urldecode ( toasterMessage );
 
+    showToaster(toasterMessage, toasterType);
+});
+
+function showToaster(toasterMessage, toasterType){
     if(toasterMessage.length > 0 && toasterType.length > 0){
         if( toasterType == "success" ) toastr.success( toasterMessage );
         if( toasterType == "error" ) toastr.error( toasterMessage );
         if( toasterType == "info" ) toastr.info( toasterMessage );
         if( toasterType == "warning" ) toastr.warning( toasterMessage );
     }
+}
+
+$(".showToaster").on("click", function(){
+    showToaster($(this).data("toasterType"), $(this).data("toasterMessage"));
 });
+// !TOASTER ALERT
 
 // DELETE CONFIRM
 $(document).on("click", ".delete-button", function(){
@@ -93,12 +105,7 @@ $(document).on("click", ".delete-button", function(){
 });
 
 
-//  TOASTER ALERT
 
-$(".showToaster").on("click", function(){
-    showToaster($(this).data("toasterType"), $(this).data("toasterMessage"));
-});
-// !TOASTER ALERT
 
 // INPUT LENGTH COUNTER
 $(window).on("load", function () {

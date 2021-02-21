@@ -72,11 +72,9 @@ class Products_model extends CI_Model
     }
 
 
-    public function updateProductBasicDate( $data ){
+    public function updateProductBasicData( $data ){
         $update[] = $this->db->set($data['page'])->where('pageID', $data['pageID'])->update('page');
         $update[] = $this->db->set($data['product'])->where('pageID', $data['pageID'])->update('product');
-        $update[] = $this->db->set($data['pageTranslation'])->where('pageID', $data['pageID'])->update('page_translation');
-        $update[] = $this->db->set($data['productTranslation'])->where('pageID', $data['pageID'])->update('product_translation');
         return $update;
     }
 
@@ -123,6 +121,9 @@ class Products_model extends CI_Model
 
         $this->db->where('pageID', $pageID);
         $data['product'] = $this->db->get('product')->row_array();
+        if($data['product']['stockAmount'] < 1){
+            $data['page']['state'] = 'INACTIVE';
+        }
 
         $this->db->where('pageID', $pageID);
         $data['product_price'] = array();
@@ -130,7 +131,6 @@ class Products_model extends CI_Model
         foreach($product_price as $priceRow){
             $data['product_price'][$priceRow['currency']] = $priceRow;
         }
-
 
         $this->db->where('pageID', $pageID);
         $data['product_translation'] = $this->db->get('product_translation')->result_array('productDescription');

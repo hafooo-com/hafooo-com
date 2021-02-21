@@ -45,6 +45,8 @@ $("#product-edit-upload-image-input").on("change", function(){
     );
 });
 
+
+
 // DROPPABLE FILE INPUT BY DROPZONE.JS
 /*
 Dropzone.options.uploadImageForm = {

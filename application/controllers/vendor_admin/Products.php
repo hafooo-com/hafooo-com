@@ -61,6 +61,7 @@ class Products extends Vendor_controller
             '/assets/adminlte/plugins/summernote/summernote-bs4.min.js',
             '/assets/adminlte/plugins/toastr/toastr.min.js',
             '/assets/adminlte/plugins/bs-custom-file-input/bs-custom-file-input.min.js',
+            '/assets/adminlte/plugins/bootstrap-switch/js/bootstrap-switch.min.js',
             '/assets/psfpro-bootstrap-html5sortable-e43c2ad/jquery.sortable.min.js',
             '/js/vendor_admin/add_product_form.min.js',
             '/js/vendor_admin/price_calc.min.js',
@@ -175,10 +176,10 @@ class Products extends Vendor_controller
         $pageID = $this->input->post('pageID');
         $this->setDictionary('vendor/admin/product_edit');
         $this->form_validation->set_rules('parentPage', 'parentPage', 'required');
-        $this->form_validation->set_rules('pageName', 'pageName', 'required|min_length[3]|max_length[300]');
-        $this->form_validation->set_rules('metaTitle', 'metaTitle', 'required|min_length[10]|max_length[300]');
-        $this->form_validation->set_rules('metaDescription', 'metaDescription', 'required|min_length[10]|max_length[300]');
-        $this->form_validation->set_rules('productDescription', 'productDescription', 'required|min_length[10]|max_length[10000]');
+//        $this->form_validation->set_rules('pageName', 'pageName', 'required|min_length[3]|max_length[300]');
+//        $this->form_validation->set_rules('metaTitle', 'metaTitle', 'required|min_length[10]|max_length[300]');
+//        $this->form_validation->set_rules('metaDescription', 'metaDescription', 'required|min_length[10]|max_length[300]');
+//        $this->form_validation->set_rules('productDescription', 'productDescription', 'required|min_length[10]|max_length[10000]');
         $validation_errors = $this->form_validation->run();
 
         if(!$validation_errors){
@@ -186,61 +187,51 @@ class Products extends Vendor_controller
             $errorFields = array();
             $httpQuery = http_build_query( $this->input->post() );
             if(strpos($validation_errors,'parentPage') !== false) {$errorFields[] = 'parentPage';}
-            if(strpos($validation_errors,'pageName') !== false) {$errorFields[] = 'pageName';}
-            if(strpos($validation_errors,'metaTitle') !== false) {$errorFields[] = 'metaTitle';}
-            if(strpos($validation_errors,'metaDescription') !== false) {$errorFields[] = 'metaDescription';}
-            if(strpos($validation_errors,'productDescription') !== false) {$errorFields[] = 'productDescription';}
             $errorFields = implode( '-', $errorFields );
 
-            $url = '/vendor_admin/products/product_edit/?alert=danger&message=' . urlencode($this->lang->line('VENDOR_ADMIN_UPDATE_PRODUCT_ALERT_OPERATION_FAILED')) . '&errorFields=' . $errorFields . '&' . $httpQuery;
+            $url = '/vendor_admin/products/product_edit/?toast-type=danger&toast-message=' . urlencode($this->lang->line('VENDOR_ADMIN_PRODUCT_EDIT_ALERT_UPDATE_PRODUCT_BASIC_DATA_FAILED')) . '&errorFields=' . $errorFields . '&' . $httpQuery;
             redirect( $url );
         }
 
         list($throw, $parentPageID) = explode('-', $this->input->post('parentPage'));
         $allParentPageIDs = str_replace('-', ',', $this->input->post('parentPage'));
         $pageUri = $this->Products_model->createProductUrl($this->input->post('pageName'), $parentPageID);
+        $pageState = $this->input->post('state') != false ? 'ACTIVE' : 'INIACTIVE';
+
+        if($pageUri != $this->input->post('pageUriOriginal')){
+            $this->db->query("INSERT IGNORE INTO redirects (nonExistentUri, redirectUri) VALUES ('" . $this->input->post('pageUriOriginal') . "', '" . $pageUri . "')");
+        }
         $data['page'] = array(
             'parentPageID' => $parentPageID,
             'allParentPageIDs' => $allParentPageIDs,
             'pageUri' => $pageUri,
-            'pageType' => 'PRODUCT_VIEW',
-            'state' => 'INACTIVE',
+            'state' => $pageState,
         );
         $data['product'] = array(
-            'vendorID' => $this->data['vendor']['vendorID'],
-            'packageWeight' => '',
-            'packageLength' => '',
-            'packageWidth' => '',
-            'packageHeight' => '',
-            'productMedia' => json_encode( new stdClass() ),
-            'mainImage' => '',
-            'productType' => '',
-            'productType' => $this->input->post('productType'),
-        );
-        $data['pageTranslation'] = array(
-            'lang' => $this->input->post('language'),
-            'pageName' => $this->input->post('pageName'),
-            'metaTitle' => $this->input->post('metaTitle'),
-            'metaDescription' => $this->input->post('metaDescription'),
-        );
-        $data['productTranslation'] = array(
-            'lang' => $this->input->post('language'),
-            'productDescription' => $this->input->post('productDescription'),
+            'ean' => $this->input->post('ean'),
+            'stockAmount' => $this->input->post('stockAmount'),
         );
         $data['pageID'] = $pageID;
-        $update = $this->Products_model->updateProductBasicDate($data);
-        $url = '/vendor_admin/products/product_edit/' . $pageID . '?alert=success&message=' . urlencode($this->lang->line('VENDOR_ADMIN_UPDATE_PRODUCT_ALERT_OPERATION_SUCCESS'));
+        $update = $this->Products_model->updateProductBasicData($data);
+        $url = '/vendor_admin/products/product_edit/' . $pageID . '?toast-type=success&toast-message=' . urlencode($this->lang->line('VENDOR_ADMIN_PRODUCT_EDIT_ALERT_UPDATE_PRODUCT_BASIC_DATA_SUCCESS'));
         redirect($url);
     }
 
     public function upload_image(){
+        $this->setDictionary('vendor/admin/product_edit');
         $pageID        = $this->input->post('pageID');
         $imgPath       = FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/';
         $smallImgPath  = FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/small/';
         $thumbnailPath = FCPATH . PRODUCTS_IMAGES_PATH . $pageID . '/thumbnail/';
         $image = $this->Products_model->createProductImage($imgPath, $smallImgPath, $thumbnailPath, $pageID);
-//        dmp($image);
-        redirect('/vendor_admin/products/product_edit/' . $pageID . '?');
+
+        if(!$image){
+            $params = 'toast-message=' . $this->lang->line('VENDOR_ADMIN_PRODUCT_EDIT_ALERT_UPLOAD_IMAGE_FAILED') . '&toast-type=danger';
+        }
+        else{
+            $params = 'toast-message=' . $this->lang->line('VENDOR_ADMIN_PRODUCT_EDIT_ALERT_UPLOAD_IMAGE_SUCCESS') . '&toast-type=success';
+        }
+        redirect('/vendor_admin/products/product_edit/' . $pageID . '?' . $params);
     }
 
     public function ajax_delete_product_image(){
@@ -279,9 +270,18 @@ class Products extends Vendor_controller
 
 
     public function ajax_update_price(){
+        $this->setDictionary('vendor/admin/product_edit');
         $qs = "INSERT INTO product_price (`pageID`, `currency`, `price`) VALUES ('" . $this->input->post('pageID') . "', '" . $this->input->post('currency') . "', " . $this->input->post('price') . ") ON DUPLICATE KEY UPDATE `price` = " . $this->input->post('price') . ";";
         $do = $this->db->query($qs);
-        echo $do;
+        if(!$do){
+            $data['toasterMessage'] = $this->lang->line('VENDOR_ADMIN_PRODUCT_EDIT_ALERT_UPDATE_PRODUCT_PRICE_FAILED');
+            $data['toasterType'] = 'danger';
+        }
+        else{
+            $data['toasterMessage'] = $this->lang->line('VENDOR_ADMIN_PRODUCT_EDIT_ALERT_UPDATE_PRODUCT_PRICE_SUCCESS');
+            $data['toasterType'] = 'success';
+        }
+        echo json_encode($data);
     }
 
 

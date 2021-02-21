@@ -35,7 +35,7 @@
             </div>
 
             <div class="col-6">
-                <form id="dict-form">
+                <form id="dict-form" class="d-none">
 
                     <div class="form-group row">
                         <div class="col">
@@ -54,21 +54,42 @@
                     <div class="form-group row">
                         <div class="col">
                             <label for="en">EN</label>
-                            <input id="en" name="en" type="text" class="form-control" required="required">
+                            <input id="en" name="en_GB" type="text" class="form-control" required="required">
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <div class="col">
                             <label for="sk">SK</label>
-                            <input id="sk" name="sk" type="text" class="form-control" required="required">
+                            <input id="sk" name="sk_SK" type="text" class="form-control" required="required">
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <div class="col">
                             <label for="cs">CS</label>
-                            <input id="cs" name="cs" type="text" class="form-control" required="required">
+                            <input id="cs" name="cs_CZ" type="text" class="form-control" required="required">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col">
+                            <label for="cs">PL</label>
+                            <input id="cs" name="pl_PL" type="text" class="form-control" required="required">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col">
+                            <label for="cs">RU</label>
+                            <input id="cs" name="ru_RU" type="text" class="form-control" required="required">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col">
+                            <label for="cs">HU</label>
+                            <input id="cs" name="hu_HU" type="text" class="form-control" required="required">
                         </div>
                     </div>
 

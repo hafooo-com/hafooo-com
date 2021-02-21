@@ -73,8 +73,11 @@ $(".product-price-button-save").on("click", function(){
             icon.removeClass("fa-save").addClass("fa-spinner fa-spin");
         },
         success: function(response){
+            console.log(response);
             setTimeout(function(){
+                var result = JSON.parse(response);
                     icon.removeClass("fa-spinner fa-spin faa-shake animated").addClass("fa-check");
+                    showToaster(result.toasterMessage, result.toasterType);
                     setTimeout(function(){
                             icon.removeClass("fa-check").addClass("fa-save");
                         }, 3000
